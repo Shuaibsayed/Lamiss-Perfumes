@@ -1013,6 +1013,22 @@ body.festive .mascot svg{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--fest
 
 @media (min-width:901px){.hero-actions{padding-left:10rem}}
 @media (max-width:900px){.hero .fest-layer{top:calc(205px + var(--bh))}}
+/* never let decorative full-bleed layers widen the page on phones */
+html,body{overflow-x:clip}
+.discovery{overflow-x:clip}
+@media(max-width:900px){.mascot-dock{transition:transform .4s var(--ease),opacity .4s}.mascot-dock.away{transform:translateY(-74px);opacity:1}}
+/* desktop gifting: the bag / basket / box stays pinned in view while the product list scrolls, then leaves with the section */
+@media(min-width:901px){
+  .disc-grid{align-items:stretch}
+  .giftbox{position:relative;top:auto;--gb-bg:#17130f}
+  html[data-theme="light"] .giftbox{--gb-bg:var(--panel)}
+  .giftbox>.stage,.giftbox>.attar-stage{position:sticky;top:calc(var(--bh) + 86px);z-index:6;isolation:isolate;max-width:min(380px,calc(46vh * 1.0667))}
+  .giftbox>.attar-stage{max-width:min(340px,46vh)}
+  .giftbox>.stage::before,.giftbox>.attar-stage::before{content:'';position:absolute;z-index:-1;top:-14px;bottom:-10px;left:calc(50% - 50vw);right:calc(50% - 50vw);max-width:none;background:linear-gradient(to bottom,var(--gb-bg) 0%,var(--gb-bg) 82%,transparent)}
+  .giftbox{overflow-x:clip}
+}
+
+.mascot-dock{will-change:transform;transform:translateZ(0);backface-visibility:hidden}
 
 </style>
 </head>
