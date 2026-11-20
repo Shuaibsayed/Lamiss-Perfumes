@@ -1393,16 +1393,6 @@ html[data-theme="light"] .cb-lit .cb-grp>span{color:color-mix(in srgb,#9A5A14 ca
 @media (max-width:1180px){.cb-ln,.cb-ln-pool{display:none}.cb-side.cb-lit{padding-inline-start:0}}
 @media (prefers-reduced-motion:reduce){.cb-ln-glow{animation:none}}
 /* LANTERN END */
-/* MUSIC START */
-.cb-eq{display:inline-flex;align-items:flex-end;gap:2px;width:15px;height:13px;flex:none}
-.cb-eq i{display:block;width:3px;height:30%;background:currentColor;border-radius:1px;transition:height .3s}
-.cb-music.on .cb-eq i{animation:cbEq 1.1s ease-in-out infinite}
-.cb-music.on .cb-eq i:nth-child(2){animation-delay:-.4s;animation-duration:.9s}
-.cb-music.on .cb-eq i:nth-child(3){animation-delay:-.7s;animation-duration:1.3s}
-@keyframes cbEq{0%,100%{height:25%}50%{height:100%}}
-.cb-music.on{background:rgba(201,169,97,.12)}
-@media (prefers-reduced-motion:reduce){.cb-music.on .cb-eq i{animation:none;height:70%}}
-/* MUSIC END */
 </style>
 </head>
 <body data-page="collection">
@@ -3243,37 +3233,6 @@ new IntersectionObserver(es=>{live=es[0].isIntersecting;if(live){if(!seen){seen=
 })();
 /* LANTERN END */
 
-/* MUSIC START: background music for the catalogue — off until the visitor turns it on, loops with a soft crossfade */
-(()=>{
-const tools=$('.cb-tools');if(!tools)return;
-const SRC='assets/audio/quiet-luxury.mp3',VOL=.35,XF=3;
-const MT={en:['Music','Play background music','Pause background music'],ar:['الموسيقى','تشغيل الموسيقى','إيقاف الموسيقى']};
-const mt=i=>(MT[lang]||MT.en)[i];
-tools.insertAdjacentHTML('beforeend','<button class="cb-tool cb-music" id="cb-music" aria-pressed="false"><span class="cb-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="cb-mlbl"></span></button>');
-const btn=$('#cb-music');
-const mk=()=>{const a=new Audio();a.preload='none';a.src=SRC;a.volume=0;return a;};
-let A=null,B=null,on=false,hiddenPause=false,fades=new Map();
-function fade(a,to,ms,then){
-  cancelAnimationFrame(fades.get(a));const from=a.volume,t0=performance.now();
-  const f=now=>{const k=Math.min(1,(now-t0)/ms);a.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k<1)fades.set(a,requestAnimationFrame(f));else{fades.delete(a);if(then)then();}};
-  fades.set(a,requestAnimationFrame(f));
-}
-/* two players take turns so the end of the track melts into its start */
-function watch(a){a.ontimeupdate=()=>{if(!on||a!==A||!a.duration)return;if(a.duration-a.currentTime<=XF){const n=B;B=A;A=n;A.currentTime=0;A.volume=0;A.play().catch(()=>{});fade(A,VOL,XF*1000);fade(B,0,XF*1000,()=>{B.pause();});}};}
-function start(){
-  if(!A){A=mk();B=mk();watch(A);watch(B);}
-  on=true;const p=A.play();if(p&&p.catch)p.catch(()=>{on=false;ui();});fade(A,VOL,1500);ui();
-}
-function stop(){on=false;[A,B].forEach(a=>{if(a&&!a.paused)fade(a,0,700,()=>a.pause());});ui();}
-function ui(){btn.setAttribute('aria-pressed',on);btn.classList.toggle('on',on);$('.cb-mlbl',btn).textContent=mt(0);btn.title=mt(on?2:1);btn.setAttribute('aria-label',mt(on?2:1));}
-btn.onclick=()=>{on?stop():start();try{localStorage.setItem('lm_music',on?'1':'0');}catch(e){}};
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&on){hiddenPause=true;[A,B].forEach(a=>a&&a.pause());}else if(!document.hidden&&hiddenPause){hiddenPause=false;if(on){A.play().catch(()=>{});}}});
-/* a visitor who turned music on before gets it back on their first tap or key press (browsers block sound before that) */
-let want=false;try{want=localStorage.getItem('lm_music')==='1';}catch(e){}
-if(want){const go=e=>{if(e.target.closest&&e.target.closest('#cb-music'))return;removeEventListener('pointerdown',go,true);removeEventListener('keydown',go,true);if(!on)start();};addEventListener('pointerdown',go,true);addEventListener('keydown',go,true);}
-renderers.push(ui);ui();
-})();
-/* MUSIC END */
 
 applyLang();
 
